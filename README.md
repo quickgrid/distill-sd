@@ -4,6 +4,8 @@ Experiment with inference of pretrained ldm model and try distill knowledge to s
 
 Initial poor buggy implementation with working text to image and image to image inference. Lower vram requirement than original repo. Try to process parts of model in cpu and rest in gpu if chosen to reduce vram (not properly tested yet). Negative prompt added not sure if works.
 
+Training code removed. Training code from [this](https://github.com/runwayml/stable-diffusion) and [this](https://github.com/CompVis/stable-diffusion) repo should work. 
+
 
 ## Install
 
