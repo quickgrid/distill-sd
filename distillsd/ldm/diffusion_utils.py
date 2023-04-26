@@ -248,19 +248,6 @@ def avg_pool_nd(dims, *args, **kwargs):
     raise ValueError(f"unsupported dimensions: {dims}")
 
 
-class HybridConditioner(nn.Module):
-
-    def __init__(self, c_concat_config, c_crossattn_config):
-        super().__init__()
-        self.concat_conditioner = instantiate_from_config(c_concat_config)
-        self.crossattn_conditioner = instantiate_from_config(c_crossattn_config)
-
-    def forward(self, c_concat, c_crossattn):
-        c_concat = self.concat_conditioner(c_concat)
-        c_crossattn = self.crossattn_conditioner(c_crossattn)
-        return {'c_concat': [c_concat], 'c_crossattn': [c_crossattn]}
-
-
 def noise_like(shape, device, repeat=False):
     repeat_noise = lambda: torch.randn((1, *shape[1:]), device=device).repeat(shape[0], *((1,) * (len(shape) - 1)))
     noise = lambda: torch.randn(shape, device=device)
