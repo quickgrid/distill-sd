@@ -31,3 +31,4 @@ pip install -e .
 - https://github.com/CompVis/stable-diffusion
 - https://github.com/CompVis/latent-diffusion
 - https://github.com/CompVis/taming-transformers
+- https://github.com/basujindal/stable-diffusion
