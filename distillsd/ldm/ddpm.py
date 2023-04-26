@@ -26,9 +26,10 @@ __conditioning_keys__ = {
 
 
 def disabled_train(self, mode=True):
-    """Overwrite model.train with this function to make sure train/eval mode
+    """Overwrite model. train with this function to make sure train/eval mode
     does not change anymore."""
     return self
+
 
 class DDPM(pl.LightningModule):
     # classic DDPM with Gaussian diffusion, in image space
@@ -103,8 +104,10 @@ class DDPM(pl.LightningModule):
         if self.learn_logvar:
             self.logvar = nn.Parameter(self.logvar, requires_grad=True)
 
-    def register_schedule(self, given_betas=None, beta_schedule="linear", timesteps=1000,
-                          linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
+    def register_schedule(
+            self, given_betas=None, beta_schedule="linear", timesteps=1000,
+            linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3
+    ):
         if exists(given_betas):
             betas = given_betas
         else:
@@ -727,82 +730,3 @@ class DiffusionWrapper(pl.LightningModule):
             raise NotImplementedError()
 
         return out
-
-
-class Layout2ImgDiffusion(LatentDiffusion):
-    # TODO: move all layout-specific hacks to this class
-    def __init__(self, cond_stage_key, *args, **kwargs):
-        assert cond_stage_key == 'coordinates_bbox', 'Layout2ImgDiffusion only for cond_stage_key="coordinates_bbox"'
-        super().__init__(cond_stage_key=cond_stage_key, *args, **kwargs)
-
-    def log_images(self, batch, N=8, *args, **kwargs):
-        logs = super().log_images(batch=batch, N=N, *args, **kwargs)
-
-        key = 'train' if self.training else 'validation'
-        dset = self.trainer.datamodule.datasets[key]
-        mapper = dset.conditional_builders[self.cond_stage_key]
-
-        bbox_imgs = []
-        map_fn = lambda catno: dset.get_textual_label(dset.get_category_id(catno))
-        for tknzd_bbox in batch[self.cond_stage_key][:N]:
-            bboximg = mapper.plot(tknzd_bbox.detach().cpu(), map_fn, (256, 256))
-            bbox_imgs.append(bboximg)
-
-        cond_img = torch.stack(bbox_imgs, dim=0)
-        logs['bbox_image'] = cond_img
-        return logs
-
-
-class LatentInpaintDiffusion(LatentDiffusion):
-    def __init__(
-            self,
-            concat_keys=("mask", "masked_image"),
-            masked_image_key="masked_image",
-            finetune_keys=None,
-            *args,
-            **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.masked_image_key = masked_image_key
-        assert self.masked_image_key in concat_keys
-        self.concat_keys = concat_keys
-
-    @torch.no_grad()
-    def get_input(
-            self, batch, k, cond_key=None, bs=None, return_first_stage_outputs=False
-    ):
-        # note: restricted to non-trainable encoders currently
-        assert (
-            not self.cond_stage_trainable
-        ), "trainable cond stages not yet supported for inpainting"
-        z, c, x, xrec, xc = super().get_input(
-            batch,
-            self.first_stage_key,
-            return_first_stage_outputs=True,
-            force_c_encode=True,
-            return_original_cond=True,
-            bs=bs,
-        )
-
-        assert exists(self.concat_keys)
-        c_cat = list()
-        for ck in self.concat_keys:
-            cc = (
-                rearrange(batch[ck], "b h w c -> b c h w")
-                .to(memory_format=torch.contiguous_format)
-                .float()
-            )
-            if bs is not None:
-                cc = cc[:bs]
-                cc = cc.to(self.device)
-            bchw = z.shape
-            if ck != self.masked_image_key:
-                cc = torch.nn.functional.interpolate(cc, size=bchw[-2:])
-            else:
-                cc = self.get_first_stage_encoding(self.encode_first_stage(cc))
-            c_cat.append(cc)
-        c_cat = torch.cat(c_cat, dim=1)
-        all_conds = {"c_concat": [c_cat], "c_crossattn": [c]}
-        if return_first_stage_outputs:
-            return z, all_conds, x, xrec, xc
-        return z, all_conds
