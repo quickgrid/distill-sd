@@ -111,8 +111,11 @@ class DDPM(pl.LightningModule):
         if exists(given_betas):
             betas = given_betas
         else:
-            betas = make_beta_schedule(beta_schedule, timesteps, linear_start=linear_start, linear_end=linear_end,
-                                       cosine_s=cosine_s)
+            betas = make_beta_schedule(
+                beta_schedule, timesteps, linear_start=linear_start, linear_end=linear_end,
+                cosine_s=cosine_s
+            )
+
         alphas = 1. - betas
         alphas_cumprod = np.cumprod(alphas, axis=0)
         alphas_cumprod_prev = np.append(1., alphas_cumprod[:-1])
@@ -198,19 +201,6 @@ class DDPM(pl.LightningModule):
         # assert h == img_size and w == img_size, f'height and width of image must be {img_size}'
         t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=self.device).long()
         return self.p_losses(x, t, *args, **kwargs)
-
-    def get_input(self, batch, k):
-        x = batch[k]
-        if len(x.shape) == 3:
-            x = x[..., None]
-        x = rearrange(x, 'b h w c -> b c h w')
-        x = x.to(memory_format=torch.contiguous_format).float()
-        return x
-
-    def shared_step(self, batch):
-        x = self.get_input(batch, self.first_stage_key)
-        loss, loss_dict = self(x)
-        return loss, loss_dict
 
 
 class LatentDiffusion(DDPM):
@@ -520,11 +510,6 @@ class LatentDiffusion(DDPM):
                 return self.first_stage_model.encode(x)
         else:
             return self.first_stage_model.encode(x)
-
-    def shared_step(self, batch, **kwargs):
-        x, c = self.get_input(batch, self.first_stage_key)
-        loss = self(x, c)
-        return loss
 
     def forward(self, x, c, *args, **kwargs):
         t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=self.device).long()
