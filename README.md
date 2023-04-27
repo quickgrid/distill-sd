@@ -23,6 +23,24 @@ pip install -e .
 
 <img src="assets/image_to_image.png" width=50% height=50%>
 
+### Conditional Inpainting
+
+> an astronaut floating in space, high quality, 4k
+
+<img src="assets/text_to_image.png" width=25% height=25%><img src="assets/inpainting_mask.png" width=25% height=25%><img src="assets/inpainting_mask_output.png" width=25% height=25%>
+
+> moon planet in background, high quality, 4k
+
+<img src="assets/text_to_image.png" width=25% height=25%><img src="assets/inpainting_mask_inv.png" width=25% height=25%><img src="assets/inpainting_mask_inv_output.png" width=25% height=25%>
+
+
+## Pretrained Models
+
+Tested on SD 1.4, 1.5 and 1.5 inpainting model.
+
+- https://huggingface.co/CompVis/stable-diffusion-v-1-4-original
+- https://huggingface.co/runwayml/stable-diffusion-v1-5
+- https://huggingface.co/runwayml/stable-diffusion-inpainting
 
 
 ## References
