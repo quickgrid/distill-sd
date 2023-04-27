@@ -146,22 +146,12 @@ class DDPM(pl.LightningModule):
         self.register_buffer('posterior_variance', to_torch(posterior_variance))
         # below: log calculation clipped because the posterior variance is 0 at the beginning of the diffusion chain
         self.register_buffer('posterior_log_variance_clipped', to_torch(np.log(np.maximum(posterior_variance, 1e-20))))
-        self.register_buffer('posterior_mean_coef1', to_torch(
-            betas * np.sqrt(alphas_cumprod_prev) / (1. - alphas_cumprod)))
-        self.register_buffer('posterior_mean_coef2', to_torch(
-            (1. - alphas_cumprod_prev) * np.sqrt(alphas) / (1. - alphas_cumprod)))
-
-        if self.parameterization == "eps":
-            lvlb_weights = self.betas ** 2 / (
-                    2 * self.posterior_variance * to_torch(alphas) * (1 - self.alphas_cumprod))
-        elif self.parameterization == "x0":
-            lvlb_weights = 0.5 * np.sqrt(torch.Tensor(alphas_cumprod)) / (2. * 1 - torch.Tensor(alphas_cumprod))
-        else:
-            raise NotImplementedError("mu not supported")
-        # TODO how to choose this term
-        lvlb_weights[0] = lvlb_weights[1]
-        self.register_buffer('lvlb_weights', lvlb_weights, persistent=False)
-        assert not torch.isnan(self.lvlb_weights).all()
+        self.register_buffer(
+            'posterior_mean_coef1', to_torch(betas * np.sqrt(alphas_cumprod_prev) / (1. - alphas_cumprod))
+        )
+        self.register_buffer(
+            'posterior_mean_coef2', to_torch((1. - alphas_cumprod_prev) * np.sqrt(alphas) / (1. - alphas_cumprod))
+        )
 
     @contextmanager
     def ema_scope(self, context=None):
