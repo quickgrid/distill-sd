@@ -17,9 +17,15 @@ pip install -e .
 
 ### Text to Image
 
+> "a car in shape of carrot flying through solar system, high quality, 4k"
+
 <img src="assets/text_to_image.png" width=25% height=25%>
 
 ### Image to Image
+
+Guided also by positive text and negative text prompt if provided.
+
+> a car in shape of carrot flying through solar system, high quality, 4k
 
 <img src="assets/image_to_image.png" width=50% height=50%>
 
