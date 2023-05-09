@@ -13,6 +13,12 @@ Training code removed. Training code from [this](https://github.com/runwayml/sta
 pip install -e .
 ```
 
+## Flags (not implemented)
+
+`--tomesd` enables tomesd to reduce gpu memory consumption.
+
+`--tome_ratio` range from 0 to 1 with default 0.5. 
+
 ## Demo
 
 ### Text to Image
@@ -56,3 +62,4 @@ Tested on SD 1.4, 1.5 and 1.5 inpainting model.
 - https://github.com/CompVis/latent-diffusion
 - https://github.com/CompVis/taming-transformers
 - https://github.com/basujindal/stable-diffusion
+- https://github.com/dbolya/tomesd
