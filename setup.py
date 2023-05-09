@@ -4,7 +4,7 @@ setup(
     name='distillsd',
     author='Asif Ahmed',
     description='Distill latent diffusion model, stable diffusion text to image, image to image etc.',
-    version='0.1.0',
+    version='0.1.1',
     url='https://github.com/quickgrid/distill-sd',
     packages=find_packages(),
     classifiers=[
@@ -24,6 +24,7 @@ setup(
         'einops',
         'lightning',
         'xformers',
-        'transformers'
+        'transformers',
+        'tomesd'
     ]
 )
