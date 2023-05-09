@@ -188,6 +188,10 @@ class StableDiffusionInference:
         # print(sd.keys())
 
         self.ldm_model = instantiate_from_config(config.model)
+        
+        tomesd.apply_patch(self.ldm_model, ratio=0.5)
+        # tomesd.apply_patch(self.ldm_model, ratio=0.3, sx=2, sy=2, max_downsample=1)
+        
         self.ldm_model.load_state_dict(sd, strict=False)
         self.ldm_model.half()
         self.ldm_model = self.ldm_model.to(device)
